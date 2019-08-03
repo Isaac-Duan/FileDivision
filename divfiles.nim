@@ -1,3 +1,4 @@
+#分割和合并文件的示例
 import streams, os, strutils, sequtils, tables
 
 proc combineFile() =
