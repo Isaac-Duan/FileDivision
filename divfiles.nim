@@ -13,7 +13,10 @@ proc combineFile() =
   for x in fileseq:
     var fnseq = x.split('.')
     var fnseqlen = fnseq.len()
-    if fnseqlen >= 2 and fnseq[fnseqlen-1].isDigit() and distFileTable.hasKeyOrPut(fnseq[0..fnseqlen-2].join("."), 0):
+    #判断string的所有字符串是不是0..9, 可以使用isDigit(s:string):bool, 但是官方不建议使用, 可能后续版本会丢弃
+    #可以使用toOpenArray将string转成OpenArray[char], 然后使用all配合isDigit逐个char判断
+    var numlen = fnseq[fnseqlen-1]
+    if fnseqlen >= 2 and fnseq[fnseqlen-1].toOpenArray(0, numlen-1).all(isDigit) and distFileTable.hasKeyOrPut(fnseq[0..fnseqlen-2].join("."), 0):
       distFileTable[fnseq[0..fnseqlen-2].join(".")] += 1
   for k,v in distFileTable.pairs():
     var distfile = open(["comb",k].join(), fmWrite)
@@ -63,12 +66,12 @@ if filesize <= 0:
   
 var wbuff:seq[byte] = @[]
 var blocksize = uint64(filesize /% divnum.int64) + 1
-#需要使用setLen手动增长填充seq，默认填充0
+#需要使用setLen手动增长填充seq, 默认填充0
 wbuff.setLen(blocksize)
 echo blocksize
 
 for x in 0..divnum:
-  #File的read_bytes方法不会自动增长seq，可以使用setLen方法扩充seq(默认填充0)
+  #File的read_bytes方法不会自动增长seq, 可以使用setLen方法扩充seq(默认填充0)
   var rlen = f.readBytes(wbuff, 0, blocksize)
   echo "读取数据量", rlen
   if rlen == 0:
